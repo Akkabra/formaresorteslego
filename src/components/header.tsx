@@ -104,7 +104,7 @@ export default function Header() {
               <SheetContent side="right" className="w-full max-w-xs bg-background p-6">
                 <div className="flex flex-col h-full">
                   <div className="flex justify-between items-center mb-8">
-                     <Image src="/LOGO PRINCIPAL FORMARESORTES LEGOBLANCO SIN FONDO SAS.png" alt="FormaResortes Logo" width={120} height={24} />
+                     <Image src="assets/LOGO PRINCIPAL BLANCO.png" alt="FormaResortes Logo" width={120} height={24} />
                     <SheetClose asChild>
                        <Button variant="ghost" size="icon">
                         <X className="h-6 w-6" />
