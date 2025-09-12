@@ -46,7 +46,7 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
                     <div className="md:col-span-1 flex flex-col items-center md:items-start">
                         <a href="#" className="flex items-center gap-2">
-                           <Image src="assets/LOGO PRINCIPAL BLANCO.png" alt="FormaResortes Logo" width={200} height={40} />
+                           <Image src="public/LOGO PRINCIPAL BLANCO.png" alt="FormaResortes Logo" width={200} height={40} />
                         </a>
                         <p className="mt-4 text-sm text-gray-400">
                             Ingeniería y precisión en cada resorte que fabricamos.
