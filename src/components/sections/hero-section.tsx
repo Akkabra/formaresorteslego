@@ -20,7 +20,7 @@ export default function HeroSection() {
   return (
     <section id="home" className="relative h-screen min-h-[600px] w-full flex items-center justify-center text-center p-4">
       <Image
-        src="public/FABRICA SPRING.jpg"
+        src="/FABRICA SPRING.jpg"
         alt="Fábrica de resortes industriales"
         data-ai-hint="spring factory"
         fill
