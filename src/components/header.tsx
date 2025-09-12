@@ -1,3 +1,4 @@
+import Image from "next/image";
 
 "use client";
 
@@ -72,7 +73,7 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           <a href="#" className="flex items-center gap-2">
-            <Image src="/LOGO PRINCIPAL FORMARESORTES LEGOBLANCO SIN FONDO SAS.png" alt="FormaResortes Logo" width={80} height={16} className="w-20 md:w-24"/>
+            <Image src="/LOGO PRINCIPAL BLANCO.png" alt="FormaResortes Logo" width={80} height={16} className="w-20 md:w-24"/>
           </a>
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
             {navLinks.map((link) => (
