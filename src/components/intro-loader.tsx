@@ -18,7 +18,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => (
 
 const LogoAndText = ({ show }: { show: boolean }) => (
     <div className={cn("flex flex-col items-center text-primary transition-opacity duration-1000", show ? "opacity-100" : "opacity-0")}>
-       <Image src="/public/LOGO PRINCIPAL BLANCO.png" 
+       <Image src="/LOGO PRINCIPAL BLANCO.png" 
        alt="FormaResortes Logo" 
        width={240} height={120} priority />
        <p className="mt-4 text-lg font-headline tracking-wider text-primary/80 text-center">
