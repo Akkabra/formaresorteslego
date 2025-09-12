@@ -30,7 +30,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-blue-950/70 to-black/70 -z-10" />
       <div className="container px-4 text-white flex flex-col items-center">
         <Image
-            src="public/LOGO PRINCIPAL BLANCO.png"
+            src="assets/LOGO PRINCIPAL BLANCO.png"
             alt="FormaResortes LEGO SAS Logo"
             width={307}
             height={160}
