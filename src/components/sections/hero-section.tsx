@@ -20,7 +20,7 @@ export default function HeroSection() {
   return (
     <section id="home" className="relative h-screen min-h-[600px] w-full flex items-center justify-center text-center p-4">
       <Image
-        src="/FABRICA SPRING.jpg"
+        src="public/FABRICA SPRING.jpg"
         alt="Fábrica de resortes industriales"
         data-ai-hint="spring factory"
         fill
@@ -30,7 +30,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-blue-950/70 to-black/70 -z-10" />
       <div className="container px-4 text-white flex flex-col items-center">
         <Image
-            src="public/lOGO PRINCIPAL BLANCO.png"
+            src="public/LOGO PRINCIPAL BLANCO.png"
             alt="FormaResortes LEGO SAS Logo"
             width={307}
             height={160}
