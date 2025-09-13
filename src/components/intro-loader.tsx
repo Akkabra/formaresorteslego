@@ -20,15 +20,13 @@ const PATHS: string[] = [
 
 const DrawingSpring = ({ show }: { show: boolean }) => {
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
-  const animsRef = useRef<Animation[]>([]);
+  const animRef = useRef<Animation | null>(null);
 
   useEffect(() => {
     const paths = pathRefs.current.filter(Boolean) as SVGPathElement[];
-    animsRef.current.forEach((a) => a.cancel());
-    animsRef.current = [];
-
     if (!paths.length) return;
 
+    // Calcular longitudes y total
     const lengths = paths.map((p) => {
       try {
         return p.getTotalLength();
@@ -36,55 +34,35 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
         return 0;
       }
     });
-    const total = lengths.reduce((s, v) => s + v, 0) || 1;
+    const totalLength = lengths.reduce((s, v) => s + v, 0);
 
+    // Configurar strokeDash
     paths.forEach((p, i) => {
       const L = lengths[i];
       p.style.strokeDasharray = `${L}`;
-      p.style.strokeDashoffset = `${L}`;
-      p.style.transition = "none";
+      p.style.strokeDashoffset = show ? `${L}` : "0";
     });
 
-    if (!show) {
-      paths.forEach((p, i) => {
-        p.style.strokeDashoffset = `${lengths[i]}`;
-      });
-      return;
-    }
+    if (!show) return;
 
-    const drawDuration = 2500;
-    const pause = 500;
-    const eraseDuration = 2500;
-
+    // Animar como un solo trazo
     let cum = 0;
     paths.forEach((p, i) => {
       const L = lengths[i];
-      const start = (cum / total) * drawDuration;
-      const dur = Math.max(100, (L / total) * drawDuration);
-      const a = p.animate(
-        [{ strokeDashoffset: `${L}` }, { strokeDashoffset: "0" }],
-        { duration: dur, delay: start, easing: "cubic-bezier(.22,1,.36,1)", fill: "forwards" }
+      p.animate(
+        [
+          { strokeDashoffset: L.toString() },
+          { strokeDashoffset: "0" }
+        ],
+        {
+          duration: 4000 * (L / totalLength), // proporcional al tamaño
+          delay: (cum / totalLength) * 4000, // empieza donde terminó el anterior
+          easing: "ease-in-out",
+          fill: "forwards"
+        }
       );
-      animsRef.current.push(a);
       cum += L;
     });
-
-    paths.forEach((p, i) => {
-      const L = lengths[i];
-      const before = lengths.slice(0, i).reduce((s, v) => s + v, 0);
-      const start = drawDuration + pause + (before / total) * eraseDuration;
-      const dur = Math.max(100, (L / total) * eraseDuration);
-      const a = p.animate(
-        [{ strokeDashoffset: "0" }, { strokeDashoffset: `${L}` }],
-        { duration: dur, delay: start, easing: "cubic-bezier(.22,1,.36,1)", fill: "forwards" }
-      );
-      animsRef.current.push(a);
-    });
-
-    return () => {
-      animsRef.current.forEach((a) => a.cancel());
-      animsRef.current = [];
-    };
   }, [show]);
 
   return (
@@ -111,6 +89,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     </div>
   );
 };
+
 
 const LogoAndText = ({ show }: { show: boolean }) => (
   <div className={cn("flex flex-col items-center text-primary transition-opacity duration-1000", show ? "opacity-100" : "opacity-0")}>
