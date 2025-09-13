@@ -8,58 +8,72 @@ type IntroLoaderProps = {
   onFinished: () => void;
 };
 
-const AnimatedSpring = () => (
-    <div className="relative w-32 h-32 flex items-center justify-center">
-      <svg className="absolute w-full h-full" viewBox="0 0 100 100">
-        <defs>
-          <linearGradient id="spring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--primary))" />
-            <stop offset="100%" stopColor="hsl(var(--primary) / 0.6)" />
-          </linearGradient>
-        </defs>
-        <g stroke="url(#spring-gradient)" strokeWidth="6" strokeLinecap="round" fill="none">
-            <path className="intro-spring-ring" style={{ animationDelay: '0s' }} d="M 25,85 C 25,75 75,75 75,85 C 75,95 25,95 25,85" />
-            <path className="intro-spring-ring" style={{ animationDelay: '0.2s' }} d="M 25,75 C 25,65 75,65 75,75 C 75,85 25,85 25,75" />
-            <path className="intro-spring-ring" style={{ animationDelay: '0.4s' }} d="M 25,65 C 25,55 75,55 75,65 C 75,75 25,75 25,65" />
-            <path className="intro-spring-ring" style={{ animationDelay: '0.6s' }} d="M 25,55 C 25,45 75,45 75,55 C 75,65 25,65 25,55" />
-            <path className="intro-spring-ring" style={{ animationDelay: '0.8s' }} d="M 25,45 C 25,35 75,35 75,45 C 75,55 25,55 25,45" />
-            <path className="intro-spring-ring" style={{ animationDelay: '1.0s' }} d="M 25,35 C 25,25 75,25 75,35 C 75,45 25,45 25,35" />
-            <path className="intro-spring-ring" style={{ animationDelay: '1.2s' }} d="M 25,25 C 25,15 75,15 75,25 C 75,35 25,35 25,25" />
-        </g>
-      </svg>
+const DrawingSpring = ({ show }: { show: boolean }) => (
+  <div
+    className={cn(
+      "relative w-48 h-48 flex items-center justify-center transition-opacity duration-1000",
+      show ? "opacity-100" : "opacity-0"
+    )}
+  >
+    <svg
+      className="drawing-spring"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <path
+        d="M 20,10 C 20,0 80,0 80,10 
+           S 20,20 20,30 
+           C 20,20 80,20 80,30 
+           S 20,40 20,50 
+           C 20,40 80,40 80,50 
+           S 20,60 20,70 
+           C 20,60 80,60 80,70 
+           S 20,80 20,90 
+           C 20,80 80,80 80,90"
+        className="spring-path"
+        fill="none"
+        stroke="white"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+    </svg>
+
+    <style jsx>{`
+      .spring-path {
+        stroke-dasharray: 600; /* longitud aproximada del path */
+        stroke-dashoffset: 600;
+        animation: drawSpring 2.5s ease-in-out forwards;
+      }
+
+      @keyframes drawSpring {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+    `}</style>
+  </div>
+);
+
+const LogoAndText = ({ show }: { show: boolean }) => (
+    <div className={cn("flex flex-col items-center text-primary transition-opacity duration-1000", show ? "opacity-100" : "opacity-0")}>
+       <Image src="/LOGO PRINCIPAL BLANCO.png"   alt="FormaResortes Logo" 
+  width={240} height={120} priority />
+       <p className="mt-4 text-lg font-headline tracking-wider text-primary/80 text-center">
+        RESORTES DE PRECISIÓN Y FORMAS DE ALAMBRE
+      </p>
     </div>
 );
 
-
-const Logo = ({ show }: { show: boolean }) => (
-    <Image 
-        src="/LOGO PRINCIPAL BLANCO.png" 
-        alt="FormaResortes Logo" 
-        width={240} 
-        height={120} 
-        priority 
-        className={cn("transition-opacity duration-1000", show ? "opacity-100" : "opacity-0")}
-    />
-);
-
-const Subtitle = ({ show }: { show: boolean }) => (
-    <p className={cn(
-        "text-lg font-headline tracking-wider text-primary/80 text-center transition-opacity duration-1000",
-        show ? "opacity-100" : "opacity-0"
-    )}>
-        RESORTES DE PRECISIÓN Y FORMAS DE ALAMBRE
-    </p>
-);
 
 export default function IntroLoader({ onFinished }: IntroLoaderProps) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 100),    // 1. Show UI
-      setTimeout(() => setPhase(2), 500),    // 2. Start animation (conceptually)
-      setTimeout(() => setPhase(3), 4000),   // 3. Start fading out
-      setTimeout(() => onFinished(), 4800)   // 4. Finish
+      setTimeout(() => setPhase(1), 100),   // 1. Start animation
+      setTimeout(() => setPhase(2), 5500),  // 2. Show logo and text (after 2 loops of 2.5s)
+      setTimeout(() => setPhase(3), 7500), // 3. Start fade out
+      setTimeout(() => onFinished(), 8300) // 4. Finish
     ];
 
     return () => {
@@ -70,17 +84,17 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
   return (
     <div
       className={cn(
-        "fixed inset-0 flex flex-col items-center justify-center bg-[#10172A] z-50 transition-opacity duration-800",
-        phase >= 3 && "opacity-0"
+        "fixed inset-0 flex flex-col items-center justify-center bg-[#0a192f] z-50 transition-opacity duration-800",
+        phase === 3 && "opacity-0"
       )}
     >
-        <div className="flex flex-col items-center space-y-8">
-            <div className="flex flex-col items-center space-y-2">
-                <Logo show={phase >= 1} />
-                <AnimatedSpring />
-            </div>
-            <Subtitle show={phase >= 1} />
+        <div className="absolute inset-0 flex items-center justify-center">
+            {phase < 2 && <DrawingSpring show={phase === 1} />}
         </div>
+        <div className={cn("transition-opacity duration-1000", phase >= 2 ? "opacity-100" : "opacity-0")}>
+            <LogoAndText show={phase >= 2} />
+        </div>
+
     </div>
   );
 }
