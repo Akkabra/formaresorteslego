@@ -26,11 +26,8 @@ const DrawingSpring = ({ show }: { show: boolean }) => (
       strokeLinejoin="round"
     >
       <path
-        d="M 90 400 C 150 450, 350 450, 410 400 
-           M 90 320 C 150 370, 350 370, 410 320 
-           M 90 240 C 150 290, 350 290, 410 240 
-           M 90 160 C 150 210, 350 210, 410 160 
-           M 90 80  C 150 130, 350 130, 410 80"
+        d="M0 7680 l0 -7680 5120 0 5120 0 0 7680 0 7680 -5120 0 -5120 0 0
+-7680z"
       >
         <animate
           attributeName="stroke-dasharray"
