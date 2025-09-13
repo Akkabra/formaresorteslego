@@ -20,13 +20,11 @@ const PATHS: string[] = [
 
 const DrawingSpring = ({ show }: { show: boolean }) => {
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
-  const animRef = useRef<Animation | null>(null);
 
   useEffect(() => {
     const paths = pathRefs.current.filter(Boolean) as SVGPathElement[];
     if (!paths.length) return;
 
-    // Calcular longitudes y total
     const lengths = paths.map((p) => {
       try {
         return p.getTotalLength();
@@ -36,7 +34,6 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     });
     const totalLength = lengths.reduce((s, v) => s + v, 0);
 
-    // Configurar strokeDash
     paths.forEach((p, i) => {
       const L = lengths[i];
       p.style.strokeDasharray = `${L}`;
@@ -45,7 +42,6 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
 
     if (!show) return;
 
-    // Animar como un solo trazo
     let cum = 0;
     paths.forEach((p, i) => {
       const L = lengths[i];
@@ -55,8 +51,8 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
           { strokeDashoffset: "0" }
         ],
         {
-          duration: 4000 * (L / totalLength), // proporcional al tamaño
-          delay: (cum / totalLength) * 4000, // empieza donde terminó el anterior
+          duration: 4000 * (L / totalLength),
+          delay: (cum / totalLength) * 4000,
           easing: "ease-in-out",
           fill: "forwards"
         }
@@ -73,23 +69,37 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
         className="w-[400px] h-[400px]"
         aria-hidden="true"
       >
+        <defs>
+          <linearGradient id="springGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: "#e6e6e6" }} />
+            <stop offset="50%" style={{ stopColor: "#ffffff" }} />
+            <stop offset="100%" style={{ stopColor: "#a3a3a3" }} />
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
         {PATHS.map((d, i) => (
           <path
             key={i}
             ref={(el) => { pathRefs.current[i] = el; }}
             d={d}
             fill="none"
-            stroke="white"
+            stroke="url(#springGradient)"
             strokeWidth={20}
             strokeLinecap="round"
             strokeLinejoin="round"
+            filter="url(#glow)"
           />
         ))}
       </svg>
     </div>
   );
 };
-
 
 const LogoAndText = ({ show }: { show: boolean }) => (
   <div className={cn("flex flex-col items-center text-primary transition-opacity duration-1000", show ? "opacity-100" : "opacity-0")}>
