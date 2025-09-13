@@ -33,7 +33,7 @@ const AnimatedSpring = () => (
 
 const Logo = ({ show }: { show: boolean }) => (
     <Image 
-        src="/LOGO PRINCIPAL FORMARESORTES LEGOBLANCO SIN FONDO SAS.png" 
+        src="/LOGO PRINCIPAL BLANCO.png" 
         alt="FormaResortes Logo" 
         width={240} 
         height={120} 
