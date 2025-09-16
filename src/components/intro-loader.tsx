@@ -8,7 +8,7 @@ type IntroLoaderProps = {
   onFinished: () => void;
 };
 
-// 🔹 Función para generar el resorte
+// 🔹 Función para generar el resorte con elipses
 function generateEllipseSpring(width: number, height: number, turns: number) {
   if (turns <= 0) turns = 1;
 
@@ -40,7 +40,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     const len = path.getTotalLength();
     path.style.strokeDasharray = `${len}px`;
 
-    // 🔹 duración calculada para terminar justo antes del cambio de fase
+    // 🔹 duración ajustada para que termine justo antes del logo
     const duration = 5400;
 
     path.animate(
@@ -50,8 +50,8 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
       ],
       {
         duration,
-        easing: "linear",
-        iterations: Infinity, // 🔹 continuo
+        easing: "cubic-bezier(.65,0,.35,1)", // 🔹 animación suave
+        iterations: Infinity, // continuo
       }
     );
   }, [show]);
@@ -75,7 +75,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
           ref={pathRef}
           d={pathD}
           stroke="#1E90FF"
-          strokeWidth={2}
+          strokeWidth={6} // 🔹 línea más gruesa
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
