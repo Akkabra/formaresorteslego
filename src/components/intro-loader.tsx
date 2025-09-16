@@ -12,13 +12,13 @@ type IntroLoaderProps = {
 function generateEllipseSpring(width: number, height: number, turns: number) {
   if (turns <= 0) turns = 1;
 
-  const stepY = height / (turns + 2);
+  const stepY = height / (turns + 1.5);
   const centerX = width / 2;
   let d = "";
 
   // tamaño inicial de los radios
-  const baseRx = 15;
-  const baseRy = 8;
+  const baseRx = 10;
+  const baseRy = 6;
 
   for (let i = 0; i < turns; i++) {
     const rx = baseRx + i * 10; // +2px cada vez en X
@@ -77,7 +77,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
         <path
           ref={pathRef}
           d={pathD}
-          stroke="#0000"
+          stroke="#1E90FF"
           strokeWidth={8}
           fill="none"
           strokeLinecap="round"
@@ -86,7 +86,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
       </svg>
 
       <p className="mt-4 text-lg font-semibold text-blue-400 animate-pulse">
-        Cargando...Resortes de máxima calidad.
+        Cargando...
       </p>
     </div>
   );
