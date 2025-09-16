@@ -1,90 +1,144 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 type IntroLoaderProps = {
-  onFinished?: () => void;
+  onFinished: () => void;
 };
 
-export default function IntroLoader({ onFinished }: IntroLoaderProps) {
+// Función para generar el resorte con elipses crecientes
+function generateEllipseSpring(width: number, height: number, turns: number) {
+  const stepY = height / (turns + 1.5);
+  let d = "";
+
+  for (let i = 0; i < turns; i++) {
+    const cy = stepY * (i + 1);
+    const scaleFactor = 0.5 + (i / turns) * 0.5;
+    const rx = (width / 2) * scaleFactor;
+    const ry = (stepY / 2) * scaleFactor;
+
+    d += `M ${width / 2 - rx} ${cy} A ${rx} ${ry} 0 1 0 ${width / 2 + rx} ${cy} A ${rx} ${ry} 0 1 0 ${width / 2 - rx} ${cy} `;
+  }
+
+  return d;
+}
+
+const DrawingSpring = ({ show, repeat = 2 }: { show: boolean; repeat?: number }) => {
   const pathRef = useRef<SVGPathElement | null>(null);
 
-  // Genera el resorte (de pequeño a grande)
-  const generateEllipseSpring = (
-    turns: number,
-    width: number,
-    height: number,
-    spacing: number
-  ) => {
-    if (turns <= 0) turns = 1;
-
-    const stepY = height / (turns + 1.5);
-    const centerX = width / 2;
-    let d = "";
-
-    for (let i = 0; i < turns; i++) {
-      const progress = (i + 1) / turns; // ahora crece en cada anillo
-      const rx = 20 + progress * (width / 2 - 20);
-      const ry = 10 + progress * (height / 2 - 10);
-      const y = i * stepY + spacing;
-
-      if (i === 0) {
-        d += `M ${centerX + rx} ${y} `;
-      }
-
-      // curva superior e inferior
-      d += `A ${rx} ${ry} 0 0 1 ${centerX - rx} ${y} `;
-      d += `A ${rx} ${ry} 0 0 1 ${centerX + rx} ${y} `;
-    }
-    return d;
-  };
-
-  // Animación continua, lenta y sin pausas
   useEffect(() => {
-    if (!pathRef.current) return;
+    if (!show || !pathRef.current) return;
 
-    try {
-      const length = pathRef.current.getTotalLength();
-      pathRef.current.style.strokeDasharray = `${length}`;
-      pathRef.current.style.strokeDashoffset = `${length}`;
+    const path = pathRef.current;
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = `${len}px`;
 
-      const animation = pathRef.current.animate(
+    let count = 0;
+
+    const runAnimation = () => {
+      path.style.strokeDashoffset = `${len}px`;
+      const anim = path.animate(
         [
-          { strokeDashoffset: length },
-          { strokeDashoffset: 0 },
+          { strokeDashoffset: `${len}px` },
+          { strokeDashoffset: "0px" },
         ],
         {
-          duration: 5000, // más lento
-          iterations: Infinity, // infinito
-          easing: "linear",
+          duration: 2500,
+          easing: "ease-in-out",
+          fill: "forwards",
         }
       );
 
-      return () => animation.cancel();
-    } catch (err) {
-      console.error("Error en animación:", err);
-    }
-  }, []);
+      anim.onfinish = () => {
+        count++;
+        if (count < repeat) {
+          runAnimation();
+        }
+      };
+    };
+
+    runAnimation();
+  }, [show, repeat]);
+
+  const pathD = generateEllipseSpring(240, 400, 6);
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#0A0A0A] z-50">
+    <div
+      className={cn(
+        "relative w-[300px] h-[450px] flex items-center justify-center transition-opacity duration-700",
+        show ? "opacity-100" : "opacity-0"
+      )}
+    >
       <svg
-        width="300"
-        height="300"
-        viewBox="0 0 300 300"
-        xmlns="http://www.w3.org/2000/svg"
+        width={240}
+        height={400}
+        viewBox={`0 0 240 400`}
+        preserveAspectRatio="xMidYMid meet"
       >
         <path
           ref={pathRef}
-          d={generateEllipseSpring(8, 300, 300, 10)}
-          stroke="#1E90FF"
-          strokeWidth="2"
+          d={pathD}
+          stroke="white"
+          strokeWidth={8}
           fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
-      <p className="mt-6 text-blue-400 text-lg font-medium animate-pulse">
-        Cargando..
-      </p>
+    </div>
+  );
+};
+
+const LogoAndText = ({ show }: { show: boolean }) => (
+  <div
+    className={cn(
+      "flex flex-col items-center text-primary transition-opacity duration-1000",
+      show ? "opacity-100" : "opacity-0"
+    )}
+  >
+    <Image
+      src="/LOGO PRINCIPAL BLANCO.png"
+      alt="FormaResortes Logo"
+      width={240}
+      height={120}
+      priority
+    />
+    <p className="mt-4 text-lg font-headline tracking-wider text-primary/80 text-center">
+      RESORTES DE PRECISIÓN Y FORMAS DE ALAMBRE
+    </p>
+  </div>
+);
+
+export default function IntroLoader({ onFinished }: IntroLoaderProps) {
+  const [phase, setPhase] = useState(0);
+
+  useEffect(() => {
+    const timers = [
+      window.setTimeout(() => setPhase(1), 100), // start anim
+      window.setTimeout(() => setPhase(2), 5500), // show logo
+      window.setTimeout(() => setPhase(3), 7500), // fade out
+      window.setTimeout(() => onFinished(), 8300) // finish
+    ];
+
+    return () => timers.forEach(clearTimeout);
+  }, [onFinished]);
+
+  return (
+    <div
+      className={cn(
+        "fixed inset-0 flex flex-col items-center justify-center bg-[#0a192f] z-50 transition-opacity duration-800",
+        phase === 3 && "opacity-0"
+      )}
+    >
+      <div className="absolute inset-0 flex items-center justify-center">
+        {phase < 2 && <DrawingSpring show={phase === 1} repeat={2} />}
+      </div>
+
+      <div className={cn("transition-opacity duration-1000", phase >= 2 ? "opacity-100" : "opacity-0")}>
+        <LogoAndText show={phase >= 2} />
+      </div>
     </div>
   );
 }
