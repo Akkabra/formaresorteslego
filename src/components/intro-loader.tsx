@@ -1,31 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
-type IntroLoaderProps = {
-  onFinished: () => void;
+type DrawingSpringProps = {
+  show: boolean;
 };
 
-// Función para generar el resorte con elipses crecientes
-function generateEllipseSpring(width: number, height: number, turns: number) {
-  const stepY = height / (turns + 1.5);
+function generateUniformSpring(width: number, height: number, spacing: number) {
+  const turns = Math.floor(height / spacing);
   let d = "";
 
   for (let i = 0; i < turns; i++) {
-    const cy = stepY * (i + 1);
-    const scaleFactor = 0.5 + (i / turns) * 0.5;
-    const rx = (width / 2) * scaleFactor;
-    const ry = (stepY / 2) * scaleFactor;
+    const cy = spacing * (i + 1);
+    const rx = width / 2 - i * 2; // radio decrece lentamente
+    const ry = spacing / 2;
 
-    d += `M ${width / 2 - rx} ${cy} A ${rx} ${ry} 0 1 0 ${width / 2 + rx} ${cy} A ${rx} ${ry} 0 1 0 ${width / 2 - rx} ${cy} `;
+    if (rx > 0) {
+      d += `M ${width / 2 - rx} ${cy} A ${rx} ${ry} 0 1 0 ${width / 2 + rx} ${cy} A ${rx} ${ry} 0 1 0 ${width / 2 - rx} ${cy} `;
+    }
   }
 
   return d;
 }
 
-const DrawingSpring = ({ show, repeat = 2 }: { show: boolean; repeat?: number }) => {
+const DrawingSpring = ({ show }: DrawingSpringProps) => {
   const pathRef = useRef<SVGPathElement | null>(null);
 
   useEffect(() => {
@@ -35,53 +34,43 @@ const DrawingSpring = ({ show, repeat = 2 }: { show: boolean; repeat?: number })
     const len = path.getTotalLength();
     path.style.strokeDasharray = `${len}px`;
 
-    let count = 0;
-
     const runAnimation = () => {
-      path.style.strokeDashoffset = `${len}px`;
-      const anim = path.animate(
+      path.animate(
         [
           { strokeDashoffset: `${len}px` },
           { strokeDashoffset: "0px" },
         ],
         {
           duration: 2500,
-          easing: "ease-in-out",
-          fill: "forwards",
+          easing: "linear",
+          iterations: Infinity, // 🔄 animación continua
         }
       );
-
-      anim.onfinish = () => {
-        count++;
-        if (count < repeat) {
-          runAnimation();
-        }
-      };
     };
 
     runAnimation();
-  }, [show, repeat]);
+  }, [show]);
 
-  const pathD = generateEllipseSpring(240, 400, 6);
+  const pathD = generateUniformSpring(300, 300, 30); // ancho 300, alto 300, espaciado uniforme
 
   return (
     <div
       className={cn(
-        "relative w-[300px] h-[450px] flex items-center justify-center transition-opacity duration-700",
+        "relative w-[300px] h-[300px] flex items-center justify-center transition-opacity duration-1000",
         show ? "opacity-100" : "opacity-0"
       )}
     >
       <svg
-        width={240}
-        height={400}
-        viewBox={`0 0 240 400`}
+        width={300}
+        height={300}
+        viewBox="0 0 300 300"
         preserveAspectRatio="xMidYMid meet"
       >
         <path
           ref={pathRef}
           d={pathD}
-          stroke="white"
-          strokeWidth={8}
+          stroke="#007BFF"   // azul intenso
+          strokeWidth={10}  // grosor aumentado
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -91,54 +80,4 @@ const DrawingSpring = ({ show, repeat = 2 }: { show: boolean; repeat?: number })
   );
 };
 
-const LogoAndText = ({ show }: { show: boolean }) => (
-  <div
-    className={cn(
-      "flex flex-col items-center text-primary transition-opacity duration-1000",
-      show ? "opacity-100" : "opacity-0"
-    )}
-  >
-    <Image
-      src="/LOGO PRINCIPAL BLANCO.png"
-      alt="FormaResortes Logo"
-      width={240}
-      height={120}
-      priority
-    />
-    <p className="mt-4 text-lg font-headline tracking-wider text-primary/80 text-center">
-      RESORTES DE PRECISIÓN Y FORMAS DE ALAMBRE
-    </p>
-  </div>
-);
-
-export default function IntroLoader({ onFinished }: IntroLoaderProps) {
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    const timers = [
-      window.setTimeout(() => setPhase(1), 100), // start anim
-      window.setTimeout(() => setPhase(2), 5500), // show logo
-      window.setTimeout(() => setPhase(3), 7500), // fade out
-      window.setTimeout(() => onFinished(), 8300) // finish
-    ];
-
-    return () => timers.forEach(clearTimeout);
-  }, [onFinished]);
-
-  return (
-    <div
-      className={cn(
-        "fixed inset-0 flex flex-col items-center justify-center bg-[#0a192f] z-50 transition-opacity duration-800",
-        phase === 3 && "opacity-0"
-      )}
-    >
-      <div className="absolute inset-0 flex items-center justify-center">
-        {phase < 2 && <DrawingSpring show={phase === 1} repeat={2} />}
-      </div>
-
-      <div className={cn("transition-opacity duration-1000", phase >= 2 ? "opacity-100" : "opacity-0")}>
-        <LogoAndText show={phase >= 2} />
-      </div>
-    </div>
-  );
-}
+export default DrawingSpring;
