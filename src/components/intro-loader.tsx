@@ -8,7 +8,7 @@ type IntroLoaderProps = {
   onFinished: () => void;
 };
 
-// 🔹 Función para generar el resorte con elipses
+// 🔹 Función para generar el resorte con diferencia fija de 2px por anillo
 function generateEllipseSpring(width: number, height: number, turns: number) {
   if (turns <= 0) turns = 1;
 
@@ -16,10 +16,13 @@ function generateEllipseSpring(width: number, height: number, turns: number) {
   const centerX = width / 2;
   let d = "";
 
+  // tamaño inicial de los radios
+  const baseRx = 10;
+  const baseRy = 6;
+
   for (let i = 0; i < turns; i++) {
-    const progress = (i + 1) / turns; // más pequeño arriba → más grande abajo
-    const rx = 20 + progress * (width / 2 - 40);
-    const ry = 8 + progress * (stepY - 12);
+    const rx = baseRx + i * 2; // +2px cada vez en X
+    const ry = baseRy + i * 2; // +2px cada vez en Y
     const y = stepY * (i + 1);
 
     if (i === 0) d += `M ${centerX + rx} ${y} `;
@@ -40,8 +43,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     const len = path.getTotalLength();
     path.style.strokeDasharray = `${len}px`;
 
-    // 🔹 duración extendida
-    const duration = 7000;
+    const duration = 7000; // animación más lenta
 
     path.animate(
       [
@@ -51,38 +53,38 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
       {
         duration,
         easing: "cubic-bezier(.65,0,.35,1)",
-        iterations: Infinity, // continuo
+        iterations: Infinity,
       }
     );
   }, [show]);
 
-  const pathD = generateEllipseSpring(300, 300, 6);
+  // 🔹 Resorte más pequeño
+  const pathD = generateEllipseSpring(200, 200, 6);
 
   return (
     <div
       className={cn(
-        "relative w-[300px] h-[300px] flex flex-col items-center justify-center transition-opacity duration-700",
+        "relative w-[200px] h-[200px] flex flex-col items-center justify-center transition-opacity duration-700",
         show ? "opacity-100" : "opacity-0"
       )}
     >
       <svg
-        width={300}
-        height={300}
-        viewBox={`0 0 300 300`}
+        width={200}
+        height={200}
+        viewBox={`0 0 200 200`}
         preserveAspectRatio="xMidYMid meet"
       >
         <path
           ref={pathRef}
           d={pathD}
           stroke="#1E90FF"
-          strokeWidth={8} // 🔹 línea más gruesa
+          strokeWidth={8}
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       </svg>
 
-      {/* 🔹 Texto de cargando debajo */}
       <p className="mt-4 text-lg font-semibold text-blue-400 animate-pulse">
         Cargando...
       </p>
