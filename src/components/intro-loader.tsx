@@ -8,29 +8,23 @@ type IntroLoaderProps = {
   onFinished: () => void;
 };
 
-// 🔹 Resorte normal (todos los anillos iguales)
-function generateEllipseSpring(width: number, height: number, turns: number) {
-  if (turns <= 0) turns = 1;
-
-  const stepY = height / (turns + 1.5);
-  const centerX = width / 2;
+// 🔹 Función para generar un resorte con anillos iguales
+function generateSpring(width: number, height: number, turns: number) {
+  const stepY = height / (turns + 1);
   let d = "";
 
-  const rx = 40; // ancho fijo
-  const ry = 15; // alto fijo
-
   for (let i = 0; i < turns; i++) {
-    const y = stepY * (i + 1);
+    const cy = stepY * (i + 1);
+    const rx = width / 2.5;
+    const ry = stepY / 3;
 
-    if (i === 0) d += `M ${centerX + rx} ${y} `;
-    d += `A ${rx} ${ry} 0 0 1 ${centerX - rx} ${y} `;
-    d += `A ${rx} ${ry} 0 0 1 ${centerX + rx} ${y} `;
+    d += `M ${width / 2 - rx} ${cy} A ${rx} ${ry} 0 1 0 ${width / 2 + rx} ${cy} A ${rx} ${ry} 0 1 0 ${width / 2 - rx} ${cy} `;
   }
 
   return d;
 }
 
-const DrawingSpring = ({ show, freeze }: { show: boolean; freeze?: boolean }) => {
+const DrawingSpring = ({ show, repeat = 2 }: { show: boolean; repeat?: number }) => {
   const pathRef = useRef<SVGPathElement | null>(null);
 
   useEffect(() => {
@@ -40,58 +34,61 @@ const DrawingSpring = ({ show, freeze }: { show: boolean; freeze?: boolean }) =>
     const len = path.getTotalLength();
     path.style.strokeDasharray = `${len}px`;
 
-    if (freeze) {
-      // dejar resorte estático dibujado
-      path.style.strokeDashoffset = "0px";
-      return;
-    }
+    let count = 0;
 
-    path.style.strokeDashoffset = `${len}px`;
+    const runAnimation = () => {
+      // 🔹 Dibujo
+      const draw = path.animate(
+        [{ strokeDashoffset: `${len}px` }, { strokeDashoffset: "0px" }],
+        {
+          duration: 3000, // un poco más lento
+          easing: "ease-in-out",
+          fill: "forwards",
+        }
+      );
 
-    const duration = 4000; // 🔹 más lenta
+      draw.onfinish = () => {
+        // 🔹 Desdibujo
+        const erase = path.animate(
+          [{ strokeDashoffset: "0px" }, { strokeDashoffset: `${len}px` }],
+          {
+            duration: 3000,
+            easing: "ease-in-out",
+            fill: "forwards",
+          }
+        );
 
-    const anim = path.animate(
-      [
-        { strokeDashoffset: `${len}px` }, // invisible
-        { strokeDashoffset: "0px" },      // dibujado
-        { strokeDashoffset: `${len}px` }, // desdibujado
-      ],
-      {
-        duration,
-        easing: "ease-in-out",
-        iterations: Infinity,
-      }
-    );
+        erase.onfinish = () => {
+          count++;
+          if (count < repeat) runAnimation();
+        };
+      };
+    };
 
-    return () => anim.cancel();
-  }, [show, freeze]);
+    runAnimation();
+  }, [show, repeat]);
 
-  const pathD = generateEllipseSpring(200, 200, 6);
+  const pathD = generateSpring(200, 300, 6);
 
   return (
     <div
       className={cn(
-        "relative w-[200px] h-[220px] flex flex-col items-center justify-center transition-opacity duration-700",
+        "relative w-[220px] h-[320px] flex flex-col items-center justify-center transition-opacity duration-700",
         show ? "opacity-100" : "opacity-0"
       )}
     >
-      <svg
-        width={200}
-        height={200}
-        viewBox={`0 0 200 200`}
-        preserveAspectRatio="xMidYMid meet"
-      >
+      <svg width={200} height={300} viewBox="0 0 200 300" preserveAspectRatio="xMidYMid meet">
         <path
           ref={pathRef}
           d={pathD}
-          stroke="#1E90FF"
-          strokeWidth={12}  // 🔹 línea más gruesa
+          stroke="white"
+          strokeWidth={10}
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       </svg>
-      <p className="mt-4 text-lg font-semibold text-white tracking-wider">Cargando...</p>
+      <p className="mt-4 text-white text-lg tracking-widest">CARGANDO...</p>
     </div>
   );
 };
@@ -99,18 +96,18 @@ const DrawingSpring = ({ show, freeze }: { show: boolean; freeze?: boolean }) =>
 const LogoAndText = ({ show }: { show: boolean }) => (
   <div
     className={cn(
-      "flex flex-col items-center text-gray-800 transition-opacity duration-1000",
+      "flex flex-col items-center text-primary transition-opacity duration-1000",
       show ? "opacity-100" : "opacity-0"
     )}
   >
     <Image
-      src="/LOGO PRINCIPAL FORMARESORTES LEGO SAS.png"
+      src="/LOGO PRINCIPAL BLANCO.png"
       alt="FormaResortes Logo"
-      width={180}   // 🔹 más pequeño
-      height={90}
+      width={160}
+      height={80}
       priority
     />
-    <p className="mt-4 text-lg font-headline tracking-wider text-gray-600 text-center">
+    <p className="mt-4 text-lg font-headline tracking-wider text-black text-center">
       RESORTES DE PRECISIÓN Y FORMAS DE ALAMBRE
     </p>
   </div>
@@ -121,10 +118,10 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
 
   useEffect(() => {
     const timers = [
-      window.setTimeout(() => setPhase(1), 100),   // start anim
-      window.setTimeout(() => setPhase(2), 8000),  // show logo
-      window.setTimeout(() => setPhase(3), 10000), // fade out
-      window.setTimeout(() => onFinished(), 10800) // finish
+      window.setTimeout(() => setPhase(1), 100), // inicia resorte
+      window.setTimeout(() => setPhase(2), 7500), // muestra logo
+      window.setTimeout(() => setPhase(3), 9500), // fade out
+      window.setTimeout(() => onFinished(), 10300), // termina
     ];
 
     return () => timers.forEach(clearTimeout);
@@ -134,18 +131,15 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
     <div
       className={cn(
         "fixed inset-0 flex flex-col items-center justify-center z-50 transition-opacity duration-800",
-        phase === 3 && "opacity-0",
-        phase < 2 ? "bg-[#0a192f]" : "bg-white"  // 🔹 fondo azul en 1ra pantalla, blanco en 2da
+        phase === 0 || phase === 1 ? "bg-[#0a192f]" : "bg-white",
+        phase === 3 && "opacity-0"
       )}
     >
-      <div className="absolute inset-0 flex items-center justify-center">
-        {phase < 2 && <DrawingSpring show={phase === 1} />}
-        {phase === 2 && <DrawingSpring show={true} freeze />} {/* resorte estático */}
-      </div>
+      {/* 🔹 Mostrar resorte SOLO en la primera fase */}
+      {phase === 1 && <DrawingSpring show={phase === 1} repeat={1} />}
 
-      <div className={cn("transition-opacity duration-1000", phase >= 2 ? "opacity-100" : "opacity-0")}>
-        <LogoAndText show={phase >= 2} />
-      </div>
+      {/* 🔹 Mostrar logo SOLO en la segunda fase */}
+      {phase >= 2 && <LogoAndText show={phase >= 2} />}
     </div>
   );
 }
