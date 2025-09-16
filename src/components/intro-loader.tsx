@@ -8,7 +8,7 @@ type IntroLoaderProps = {
   onFinished: () => void;
 };
 
-// 🔹 Función para generar el resorte con diferencia fija de 2px por anillo
+// 🔹 Resorte normal (todos los anillos iguales)
 function generateEllipseSpring(width: number, height: number, turns: number) {
   if (turns <= 0) turns = 1;
 
@@ -16,13 +16,10 @@ function generateEllipseSpring(width: number, height: number, turns: number) {
   const centerX = width / 2;
   let d = "";
 
-  // tamaño inicial de los radios
-  const baseRx = 10;
-  const baseRy = 6;
+  const rx = 40; // ancho fijo
+  const ry = 15; // alto fijo
 
   for (let i = 0; i < turns; i++) {
-    const rx = baseRx + i * 2; // +2px cada vez en X
-    const ry = baseRy + i * 2; // +2px cada vez en Y
     const y = stepY * (i + 1);
 
     if (i === 0) d += `M ${centerX + rx} ${y} `;
@@ -42,24 +39,25 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     const path = pathRef.current;
     const len = path.getTotalLength();
     path.style.strokeDasharray = `${len}px`;
+    path.style.strokeDashoffset = `${len}px`;
 
-    const duration = 7000; // animación más lenta
+    const duration = 3500;
 
     path.animate(
       [
-        { strokeDashoffset: `${len}px` },
-        { strokeDashoffset: "0px" },
+        { strokeDashoffset: `${len}px` }, // invisible
+        { strokeDashoffset: "0px" },      // dibujado
+        { strokeDashoffset: `${len}px` }, // desdibujado
       ],
       {
         duration,
-        easing: "cubic-bezier(.65,0,.35,1)",
+        easing: "ease-in-out",
         iterations: Infinity,
       }
     );
   }, [show]);
 
-  // 🔹 Resorte más pequeño
-  const pathD = generateEllipseSpring(200, 200, 15);
+  const pathD = generateEllipseSpring(200, 200, 6);
 
   return (
     <div
@@ -78,16 +76,12 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
           ref={pathRef}
           d={pathD}
           stroke="#1E90FF"
-          strokeWidth={8}
+          strokeWidth={10}  // 🔹 línea más gruesa
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       </svg>
-
-      <p className="mt-4 text-lg font-semibold text-blue-400 animate-pulse">
-        Cargando...
-      </p>
     </div>
   );
 };
@@ -118,9 +112,9 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
   useEffect(() => {
     const timers = [
       window.setTimeout(() => setPhase(1), 100),   // start anim
-      window.setTimeout(() => setPhase(2), 7500),  // show logo
-      window.setTimeout(() => setPhase(3), 9500),  // fade out
-      window.setTimeout(() => onFinished(), 10300) // finish
+      window.setTimeout(() => setPhase(2), 8000),  // show logo
+      window.setTimeout(() => setPhase(3), 10000), // fade out
+      window.setTimeout(() => onFinished(), 10800) // finish
     ];
 
     return () => timers.forEach(clearTimeout);
