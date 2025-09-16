@@ -88,7 +88,7 @@ const LogoAndText = ({ show }: { show: boolean }) => (
     )}
   >
     <Image
-      src="/LOGO PRINCIPAL BLANCO.png"
+      src="/LOGO PRINCIPAL FORMARESORTES LEGO SAS.png"
       alt="FormaResortes Logo"
       width={160}
       height={80}
