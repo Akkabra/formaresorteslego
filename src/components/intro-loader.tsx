@@ -48,12 +48,12 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     // 🔹 animación continua: dibujar → desdibujar sin pausas
     const anim = p.animate(
       [
-        { strokeDashoffset: len },   // invisible
-        { strokeDashoffset: 0 },     // dibujado
-        { strokeDashoffset: -len },  // desdibujado
+        { strokeDashoffset: len }, // invisible
+        { strokeDashoffset: 0 },   // dibujado
+        { strokeDashoffset: len }, // invisible otra vez
       ],
       {
-        duration: 5000, // más lento y fluido
+        duration: 4000,
         easing: "linear",
         iterations: Infinity,
       }
@@ -81,7 +81,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
           ref={pathRef}
           d={pathD}
           stroke="white"
-          strokeWidth={10} // 🔹 más grueso
+          strokeWidth={8}
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -102,10 +102,10 @@ const LogoAndText = ({ show }: { show: boolean }) => (
     )}
   >
     <Image
-      src="/LOGO PRINCIPAL BLANCO.png"
+      src="/LOGO PRINCIPAL FORMARESORTES LEGO SAS.png"
       alt="FormaResortes Logo"
-      width={160}  // 🔹 más pequeño
-      height={80}
+      width={320}
+      height={240}
       priority
     />
     <p className="mt-4 text-lg font-headline tracking-wider text-[#0a192f] text-center">
@@ -128,24 +128,22 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
   }, [onFinished]);
 
   return (
-    <div
-      className={cn(
-        "fixed inset-0 flex flex-col items-center justify-center z-50 transition-opacity duration-800",
-        phase === 3 && "opacity-0",
-        phase < 2 ? "bg-[#0a192f]" : "bg-white"
-      )}
-    >
-      <div className="absolute inset-0 flex items-center justify-center">
-        {phase < 2 && <DrawingSpring show={phase === 1} />}
-      </div>
+    <div className="fixed inset-0 z-50">
+      {/* Fondo blanco por defecto */}
+      <div className="absolute inset-0 bg-white" />
 
+      {/* Overlay azul que se desvanece */}
       <div
         className={cn(
-          "transition-opacity duration-1000",
-          phase >= 2 ? "opacity-100" : "opacity-0"
+          "absolute inset-0 bg-[#0a192f] transition-opacity duration-1000",
+          phase >= 2 && "opacity-0"
         )}
-      >
-        <LogoAndText show={phase >= 2} />
+      />
+
+      {/* Contenido */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        {phase < 2 && <DrawingSpring show={phase === 1} />}
+        {phase >= 2 && <LogoAndText show={phase >= 2} />}
       </div>
     </div>
   );
