@@ -8,7 +8,7 @@ type IntroLoaderProps = {
   onFinished: () => void;
 };
 
-// 🔹 Función para generar un resorte con anillos iguales
+// 🔹 Resorte normal (anillos iguales)
 function generateSpring(width: number, height: number, turns: number) {
   const stepY = height / (turns + 1);
   let d = "";
@@ -24,7 +24,7 @@ function generateSpring(width: number, height: number, turns: number) {
   return d;
 }
 
-const DrawingSpring = ({ show, repeat = 2 }: { show: boolean; repeat?: number }) => {
+const DrawingSpring = ({ show }: { show: boolean }) => {
   const pathRef = useRef<SVGPathElement | null>(null);
 
   useEffect(() => {
@@ -34,39 +34,26 @@ const DrawingSpring = ({ show, repeat = 2 }: { show: boolean; repeat?: number })
     const len = path.getTotalLength();
     path.style.strokeDasharray = `${len}px`;
 
-    let count = 0;
-
-    const runAnimation = () => {
-      // 🔹 Dibujo
-      const draw = path.animate(
-        [{ strokeDashoffset: `${len}px` }, { strokeDashoffset: "0px" }],
+    const animateLoop = () => {
+      // 🔹 Dibujo → Desdibujo en un bucle continuo
+      const anim = path.animate(
+        [
+          { strokeDashoffset: `${len}px` },
+          { strokeDashoffset: "0px" },
+          { strokeDashoffset: `${len}px` },
+        ],
         {
-          duration: 3000, // un poco más lento
+          duration: 6000, // total: más lento y fluido
           easing: "ease-in-out",
-          fill: "forwards",
+          iterations: Infinity, // 🔄 bucle infinito
         }
       );
-
-      draw.onfinish = () => {
-        // 🔹 Desdibujo
-        const erase = path.animate(
-          [{ strokeDashoffset: "0px" }, { strokeDashoffset: `${len}px` }],
-          {
-            duration: 3000,
-            easing: "ease-in-out",
-            fill: "forwards",
-          }
-        );
-
-        erase.onfinish = () => {
-          count++;
-          if (count < repeat) runAnimation();
-        };
-      };
+      return anim;
     };
 
-    runAnimation();
-  }, [show, repeat]);
+    const animation = animateLoop();
+    return () => animation.cancel();
+  }, [show]);
 
   const pathD = generateSpring(200, 300, 6);
 
@@ -135,10 +122,10 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
         phase === 3 && "opacity-0"
       )}
     >
-      {/* 🔹 Mostrar resorte SOLO en la primera fase */}
-      {phase === 1 && <DrawingSpring show={phase === 1} repeat={1} />}
+      {/* 🔹 Mostrar resorte SOLO en fase 1 */}
+      {phase === 1 && <DrawingSpring show={phase === 1} />}
 
-      {/* 🔹 Mostrar logo SOLO en la segunda fase */}
+      {/* 🔹 Mostrar logo SOLO en fase 2 */}
       {phase >= 2 && <LogoAndText show={phase >= 2} />}
     </div>
   );
