@@ -21,8 +21,8 @@ function generateEllipseSpring(width: number, height: number, turns: number) {
   const baseRy = 6;
 
   for (let i = 0; i < turns; i++) {
-    const rx = baseRx + i * 10; // +2px cada vez en X
-    const ry = baseRy + i * 10; // +2px cada vez en Y
+    const rx = baseRx + i * 2; // +2px cada vez en X
+    const ry = baseRy + i * 2; // +2px cada vez en Y
     const y = stepY * (i + 1);
 
     if (i === 0) d += `M ${centerX + rx} ${y} `;
@@ -43,7 +43,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     const len = path.getTotalLength();
     path.style.strokeDasharray = `${len}px`;
 
-    const duration = 5000; // animación más lenta
+    const duration = 7000; // animación más lenta
 
     path.animate(
       [
@@ -59,7 +59,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
   }, [show]);
 
   // 🔹 Resorte más pequeño
-  const pathD = generateEllipseSpring(150, 150, 3);
+  const pathD = generateEllipseSpring(200, 200, 15);
 
   return (
     <div
@@ -69,9 +69,9 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
       )}
     >
       <svg
-        width={300}
-        height={300}
-        viewBox={`0 0 300 300`}
+        width={200}
+        height={200}
+        viewBox={`0 0 200 200`}
         preserveAspectRatio="xMidYMid meet"
       >
         <path
@@ -102,8 +102,8 @@ const LogoAndText = ({ show }: { show: boolean }) => (
     <Image
       src="/LOGO PRINCIPAL BLANCO.png"
       alt="FormaResortes Logo"
-      width={480}
-      height={360}
+      width={240}
+      height={120}
       priority
     />
     <p className="mt-4 text-lg font-headline tracking-wider text-primary/80 text-center">
