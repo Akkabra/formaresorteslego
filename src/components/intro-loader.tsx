@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 type IntroLoaderProps = {
-  onFinished: () => void;
+  onFinished?: () => void;
 };
 
 export default function IntroLoader({ onFinished }: IntroLoaderProps) {
   const pathRef = useRef<SVGPathElement | null>(null);
-  const [finished, setFinished] = useState(false);
 
-  // Genera el resorte (empieza pequeño y termina grande)
+  // Genera el resorte (de pequeño a grande)
   const generateEllipseSpring = (
     turns: number,
     width: number,
@@ -24,19 +23,23 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
     let d = "";
 
     for (let i = 0; i < turns; i++) {
-      const progress = (i + 1) / turns; // de chico a grande
+      const progress = (i + 1) / turns; // ahora crece en cada anillo
       const rx = 20 + progress * (width / 2 - 20);
       const ry = 10 + progress * (height / 2 - 10);
       const y = i * stepY + spacing;
 
-      if (i === 0) d += `M ${centerX + rx} ${y} `;
+      if (i === 0) {
+        d += `M ${centerX + rx} ${y} `;
+      }
+
+      // curva superior e inferior
       d += `A ${rx} ${ry} 0 0 1 ${centerX - rx} ${y} `;
       d += `A ${rx} ${ry} 0 0 1 ${centerX + rx} ${y} `;
     }
-
     return d;
   };
 
+  // Animación continua, lenta y sin pausas
   useEffect(() => {
     if (!pathRef.current) return;
 
@@ -45,35 +48,23 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
       pathRef.current.style.strokeDasharray = `${length}`;
       pathRef.current.style.strokeDashoffset = `${length}`;
 
-      // animación lenta, continua, sin pausas
       const animation = pathRef.current.animate(
         [
           { strokeDashoffset: length },
           { strokeDashoffset: 0 },
         ],
         {
-          duration: 5000,
-          iterations: Infinity,
+          duration: 5000, // más lento
+          iterations: Infinity, // infinito
           easing: "linear",
         }
       );
 
-      // cierre automático después de X tiempo
-      const timeout = setTimeout(() => {
-        setFinished(true);
-        onFinished?.();
-      }, 6000); // ⬅️ ajusta este tiempo según quieras
-
-      return () => {
-        animation.cancel();
-        clearTimeout(timeout);
-      };
+      return () => animation.cancel();
     } catch (err) {
       console.error("Error en animación:", err);
     }
-  }, [onFinished]);
-
-  if (finished) return null;
+  }, []);
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#0A0A0A] z-50">
@@ -85,7 +76,7 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
       >
         <path
           ref={pathRef}
-          d={generateEllipseSpring(6, 300, 300, 15)}
+          d={generateEllipseSpring(8, 300, 300, 10)}
           stroke="#1E90FF"
           strokeWidth="2"
           fill="none"
