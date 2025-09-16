@@ -8,24 +8,29 @@ type IntroLoaderProps = {
   onFinished: () => void;
 };
 
-// Función para generar el resorte con elipses crecientes
+// 🔹 Función para generar el resorte
 function generateEllipseSpring(width: number, height: number, turns: number) {
+  if (turns <= 0) turns = 1;
+
   const stepY = height / (turns + 1.5);
+  const centerX = width / 2;
   let d = "";
 
   for (let i = 0; i < turns; i++) {
-    const cy = stepY * (i + 1);
-    const scaleFactor = 0.5 + (i / turns) * 0.5;
-    const rx = (width / 2) * scaleFactor;
-    const ry = (stepY / 2) * scaleFactor;
+    const progress = (i + 1) / turns; // más pequeño arriba → más grande abajo
+    const rx = 20 + progress * (width / 2 - 40);
+    const ry = 8 + progress * (stepY - 12);
+    const y = stepY * (i + 1);
 
-    d += `M ${width / 2 - rx} ${cy} A ${rx} ${ry} 0 1 0 ${width / 2 + rx} ${cy} A ${rx} ${ry} 0 1 0 ${width / 2 - rx} ${cy} `;
+    if (i === 0) d += `M ${centerX + rx} ${y} `;
+    d += `A ${rx} ${ry} 0 0 1 ${centerX - rx} ${y} `;
+    d += `A ${rx} ${ry} 0 0 1 ${centerX + rx} ${y} `;
   }
 
   return d;
 }
 
-const DrawingSpring = ({ show, repeat = 2 }: { show: boolean; repeat?: number }) => {
+const DrawingSpring = ({ show }: { show: boolean }) => {
   const pathRef = useRef<SVGPathElement | null>(null);
 
   useEffect(() => {
@@ -35,53 +40,42 @@ const DrawingSpring = ({ show, repeat = 2 }: { show: boolean; repeat?: number })
     const len = path.getTotalLength();
     path.style.strokeDasharray = `${len}px`;
 
-    let count = 0;
+    // 🔹 duración calculada para terminar justo antes del cambio de fase
+    const duration = 5400;
 
-    const runAnimation = () => {
-      path.style.strokeDashoffset = `${len}px`;
-      const anim = path.animate(
-        [
-          { strokeDashoffset: `${len}px` },
-          { strokeDashoffset: "0px" },
-        ],
-        {
-          duration: 2500,
-          easing: "ease-in-out",
-          fill: "forwards",
-        }
-      );
+    path.animate(
+      [
+        { strokeDashoffset: `${len}px` },
+        { strokeDashoffset: "0px" },
+      ],
+      {
+        duration,
+        easing: "linear",
+        iterations: Infinity, // 🔹 continuo
+      }
+    );
+  }, [show]);
 
-      anim.onfinish = () => {
-        count++;
-        if (count < repeat) {
-          runAnimation();
-        }
-      };
-    };
-
-    runAnimation();
-  }, [show, repeat]);
-
-  const pathD = generateEllipseSpring(240, 400, 6);
+  const pathD = generateEllipseSpring(300, 300, 6);
 
   return (
     <div
       className={cn(
-        "relative w-[300px] h-[450px] flex items-center justify-center transition-opacity duration-700",
+        "relative w-[300px] h-[300px] flex items-center justify-center transition-opacity duration-700",
         show ? "opacity-100" : "opacity-0"
       )}
     >
       <svg
-        width={240}
-        height={400}
-        viewBox={`0 0 240 400`}
+        width={300}
+        height={300}
+        viewBox={`0 0 300 300`}
         preserveAspectRatio="xMidYMid meet"
       >
         <path
           ref={pathRef}
           d={pathD}
-          stroke="white"
-          strokeWidth={8}
+          stroke="#1E90FF"
+          strokeWidth={2}
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -116,10 +110,10 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
 
   useEffect(() => {
     const timers = [
-      window.setTimeout(() => setPhase(1), 100), // start anim
-      window.setTimeout(() => setPhase(2), 5500), // show logo
-      window.setTimeout(() => setPhase(3), 7500), // fade out
-      window.setTimeout(() => onFinished(), 8300) // finish
+      window.setTimeout(() => setPhase(1), 100),   // start anim
+      window.setTimeout(() => setPhase(2), 5500),  // show logo
+      window.setTimeout(() => setPhase(3), 7500),  // fade out
+      window.setTimeout(() => onFinished(), 8300)  // finish
     ];
 
     return () => timers.forEach(clearTimeout);
@@ -133,7 +127,7 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
       )}
     >
       <div className="absolute inset-0 flex items-center justify-center">
-        {phase < 2 && <DrawingSpring show={phase === 1} repeat={2} />}
+        {phase < 2 && <DrawingSpring show={phase === 1} />}
       </div>
 
       <div className={cn("transition-opacity duration-1000", phase >= 2 ? "opacity-100" : "opacity-0")}>
