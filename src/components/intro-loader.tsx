@@ -40,8 +40,8 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     const len = path.getTotalLength();
     path.style.strokeDasharray = `${len}px`;
 
-    // 🔹 duración ajustada para que termine justo antes del logo
-    const duration = 5400;
+    // 🔹 duración extendida
+    const duration = 7000;
 
     path.animate(
       [
@@ -50,7 +50,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
       ],
       {
         duration,
-        easing: "cubic-bezier(.65,0,.35,1)", // 🔹 animación suave
+        easing: "cubic-bezier(.65,0,.35,1)",
         iterations: Infinity, // continuo
       }
     );
@@ -61,7 +61,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
   return (
     <div
       className={cn(
-        "relative w-[300px] h-[300px] flex items-center justify-center transition-opacity duration-700",
+        "relative w-[300px] h-[300px] flex flex-col items-center justify-center transition-opacity duration-700",
         show ? "opacity-100" : "opacity-0"
       )}
     >
@@ -75,12 +75,17 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
           ref={pathRef}
           d={pathD}
           stroke="#1E90FF"
-          strokeWidth={6} // 🔹 línea más gruesa
+          strokeWidth={8} // 🔹 línea más gruesa
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       </svg>
+
+      {/* 🔹 Texto de cargando debajo */}
+      <p className="mt-4 text-lg font-semibold text-blue-400 animate-pulse">
+        Cargando...
+      </p>
     </div>
   );
 };
@@ -111,9 +116,9 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
   useEffect(() => {
     const timers = [
       window.setTimeout(() => setPhase(1), 100),   // start anim
-      window.setTimeout(() => setPhase(2), 5500),  // show logo
-      window.setTimeout(() => setPhase(3), 7500),  // fade out
-      window.setTimeout(() => onFinished(), 8300)  // finish
+      window.setTimeout(() => setPhase(2), 7500),  // show logo
+      window.setTimeout(() => setPhase(3), 9500),  // fade out
+      window.setTimeout(() => onFinished(), 10300) // finish
     ];
 
     return () => timers.forEach(clearTimeout);
