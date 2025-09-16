@@ -12,17 +12,17 @@ type IntroLoaderProps = {
 function generateEllipseSpring(width: number, height: number, turns: number) {
   if (turns <= 0) turns = 1;
 
-  const stepY = height / (turns + 1.5);
+  const stepY = height / (turns + 2);
   const centerX = width / 2;
   let d = "";
 
   // tamaño inicial de los radios
-  const baseRx = 10;
-  const baseRy = 6;
+  const baseRx = 15;
+  const baseRy = 8;
 
   for (let i = 0; i < turns; i++) {
-    const rx = baseRx + i * 4; // +2px cada vez en X
-    const ry = baseRy + i * 4; // +2px cada vez en Y
+    const rx = baseRx + i * 10; // +2px cada vez en X
+    const ry = baseRy + i * 10; // +2px cada vez en Y
     const y = stepY * (i + 1);
 
     if (i === 0) d += `M ${centerX + rx} ${y} `;
@@ -43,7 +43,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     const len = path.getTotalLength();
     path.style.strokeDasharray = `${len}px`;
 
-    const duration = 10000; // animación más lenta
+    const duration = 5000; // animación más lenta
 
     path.animate(
       [
@@ -59,7 +59,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
   }, [show]);
 
   // 🔹 Resorte más pequeño
-  const pathD = generateEllipseSpring(250, 250, 6);
+  const pathD = generateEllipseSpring(150, 150, 3);
 
   return (
     <div
@@ -69,15 +69,15 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
       )}
     >
       <svg
-        width={200}
-        height={200}
-        viewBox={`0 0 200 200`}
+        width={300}
+        height={300}
+        viewBox={`0 0 300 300`}
         preserveAspectRatio="xMidYMid meet"
       >
         <path
           ref={pathRef}
           d={pathD}
-          stroke="#1E90FF"
+          stroke="#0000"
           strokeWidth={8}
           fill="none"
           strokeLinecap="round"
@@ -102,8 +102,8 @@ const LogoAndText = ({ show }: { show: boolean }) => (
     <Image
       src="/LOGO PRINCIPAL BLANCO.png"
       alt="FormaResortes Logo"
-      width={360}
-      height={240}
+      width={480}
+      height={360}
       priority
     />
     <p className="mt-4 text-lg font-headline tracking-wider text-primary/80 text-center">
