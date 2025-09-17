@@ -45,18 +45,17 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     p.style.strokeDasharray = `${len} ${len}`;
     p.style.strokeDashoffset = `${len}`;
 
-    // 🔹 animación continua: dibujar → desdibujar sin pausas
+    // 🔹 animación infinita: dibujar y desdibujar sin pausas
     const anim = p.animate(
       [
         { strokeDashoffset: len }, // invisible
-        { strokeDashoffset: 0 },   // dibujado
-        { strokeDashoffset: len }, // invisible otra vez
+        { strokeDashoffset: 0 }    // totalmente dibujado
       ],
       {
-        duration: 3500,
+        duration: 2500,       // controla velocidad
         easing: "linear",
         iterations: Infinity,
-        direction: "alternate"
+        direction: "alternate" // 🔹 va y vuelve sin parar
       }
     );
 
@@ -95,6 +94,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
   );
 };
 
+
 const LogoAndText = ({ show }: { show: boolean }) => (
   <div
     className={cn(
@@ -105,8 +105,8 @@ const LogoAndText = ({ show }: { show: boolean }) => (
     <Image
       src="/LOGO PRINCIPAL FORMARESORTES LEGO SAS.png"
       alt="FormaResortes Logo"
-      width={320}
-      height={240}
+      width={560}
+      height={440}
       priority
     />
     <p className="mt-4 text-lg font-headline tracking-wider text-[#0a192f] text-center">
