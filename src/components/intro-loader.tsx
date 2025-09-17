@@ -53,9 +53,10 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
         { strokeDashoffset: len }, // invisible otra vez
       ],
       {
-        duration: 4000,
+        duration: 3500,
         easing: "linear",
         iterations: Infinity,
+        direction: "alternate"
       }
     );
 
