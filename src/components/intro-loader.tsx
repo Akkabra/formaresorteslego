@@ -53,8 +53,8 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
         { strokeDashoffset: -len } // inmediatamente se borra y empieza otra vez
       ],
       {
-        duration: 6000, // ⚡ mucho más rápido, continuo
-        easing: "linear",
+        duration: 1500, // ⚡ mucho más rápido, continuo
+        easing: "ease-in-out-sine",
         iterations: Infinity,
       }
     );
