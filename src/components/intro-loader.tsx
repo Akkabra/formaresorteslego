@@ -54,7 +54,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
       ],
       {
         duration: 1500, // ⚡ mucho más rápido, continuo
-        easing: "ease-in-out-sine",
+        easing: "ease",
         iterations: Infinity,
       }
     );
