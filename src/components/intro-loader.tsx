@@ -41,19 +41,19 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     }
     if (len <= 0 || !isFinite(len)) len = 1200;
 
-    // 🔹 Configuración inicial
-    p.style.strokeDasharray = `${len} ${len}`;
+    // Configuración inicial
+    p.style.strokeDasharray = `${len}`;
     p.style.strokeDashoffset = `${len}`;
 
-    // 🔹 Animación continua (sin pausas): dibujar → desdibujar
+    // 🔹 Nueva animación infinita tipo “draw loop”
     const anim = p.animate(
       [
-        { strokeDashoffset: len },   // invisible
-        { strokeDashoffset: 0 },     // dibujado
-        { strokeDashoffset: -len },  // desdibujado
+        { strokeDashoffset: len }, // empieza invisible
+        { strokeDashoffset: 0 },   // se dibuja
+        { strokeDashoffset: -len } // inmediatamente se borra y empieza otra vez
       ],
       {
-        duration: 2000, // ⚡ más rápido
+        duration: 1500, // ⚡ mucho más rápido, continuo
         easing: "linear",
         iterations: Infinity,
       }
@@ -67,7 +67,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
   return (
     <div
       className={cn(
-        "relative w-[220px] h-[320px] flex flex-col items-center justify-center transition-opacity duration-500",
+        "relative w-[120px] h-[220px] flex flex-col items-center justify-center transition-opacity duration-500",
         show ? "opacity-100" : "opacity-0"
       )}
     >
@@ -81,7 +81,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
           ref={pathRef}
           d={pathD}
           stroke="white"
-          strokeWidth={9} // un poco más grueso
+          strokeWidth={8}
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -119,10 +119,10 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
 
   useEffect(() => {
     const timers = [
-      window.setTimeout(() => setPhase(1), 50),    // resorte arranca casi inmediato
-      window.setTimeout(() => setPhase(2), 3500),  // ⚡ logo más rápido
-      window.setTimeout(() => setPhase(3), 5500),  // fade out antes
-      window.setTimeout(() => onFinished(), 6000)  // finish
+      window.setTimeout(() => setPhase(1), 50),
+      window.setTimeout(() => setPhase(2), 3000),
+      window.setTimeout(() => setPhase(3), 5000),
+      window.setTimeout(() => onFinished(), 5500),
     ];
     return () => timers.forEach(clearTimeout);
   }, [onFinished]);
