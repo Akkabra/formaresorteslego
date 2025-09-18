@@ -8,7 +8,7 @@ type IntroLoaderProps = {
   onFinished: () => void;
 };
 
-// 🔹 Genera un resorte con elipses iguales (anillos constantes)
+// 🔹 Genera un resorte con anillos iguales
 function generateEllipseSpring(width: number, height: number, turns: number) {
   const stepY = height / (turns + 1.5);
   let d = "";
@@ -41,21 +41,21 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
     }
     if (len <= 0 || !isFinite(len)) len = 1200;
 
-    // configuración inicial
+    // 🔹 Configuración inicial
     p.style.strokeDasharray = `${len} ${len}`;
     p.style.strokeDashoffset = `${len}`;
 
-    // 🔹 animación infinita: dibujar y desdibujar sin pausas
+    // 🔹 Animación continua (sin pausas): dibujar → desdibujar
     const anim = p.animate(
       [
-        { strokeDashoffset: len }, // invisible
-        { strokeDashoffset: 0 }    // totalmente dibujado
+        { strokeDashoffset: len },   // invisible
+        { strokeDashoffset: 0 },     // dibujado
+        { strokeDashoffset: -len },  // desdibujado
       ],
       {
-        duration: 2500,       // controla velocidad
+        duration: 2000, // ⚡ más rápido
         easing: "linear",
         iterations: Infinity,
-        direction: "alternate" // 🔹 va y vuelve sin parar
       }
     );
 
@@ -67,7 +67,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
   return (
     <div
       className={cn(
-        "relative w-[220px] h-[320px] flex flex-col items-center justify-center transition-opacity duration-700",
+        "relative w-[220px] h-[320px] flex flex-col items-center justify-center transition-opacity duration-500",
         show ? "opacity-100" : "opacity-0"
       )}
     >
@@ -81,7 +81,7 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
           ref={pathRef}
           d={pathD}
           stroke="white"
-          strokeWidth={8}
+          strokeWidth={9} // un poco más grueso
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -94,19 +94,18 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
   );
 };
 
-
 const LogoAndText = ({ show }: { show: boolean }) => (
   <div
     className={cn(
-      "flex flex-col items-center text-primary transition-opacity duration-1000",
+      "flex flex-col items-center text-primary transition-opacity duration-700",
       show ? "opacity-100" : "opacity-0"
     )}
   >
     <Image
       src="/LOGO PRINCIPAL FORMARESORTES LEGO SAS.png"
       alt="FormaResortes Logo"
-      width={560}
-      height={440}
+      width={400}
+      height={300}
       priority
     />
     <p className="mt-4 text-lg font-headline tracking-wider text-[#0a192f] text-center">
@@ -120,31 +119,33 @@ export default function IntroLoader({ onFinished }: IntroLoaderProps) {
 
   useEffect(() => {
     const timers = [
-      window.setTimeout(() => setPhase(1), 100),   // arranca resorte
-      window.setTimeout(() => setPhase(2), 6000),  // logo
-      window.setTimeout(() => setPhase(3), 8000),  // fade out
-      window.setTimeout(() => onFinished(), 8800)  // finish
+      window.setTimeout(() => setPhase(1), 50),    // resorte arranca casi inmediato
+      window.setTimeout(() => setPhase(2), 3500),  // ⚡ logo más rápido
+      window.setTimeout(() => setPhase(3), 5500),  // fade out antes
+      window.setTimeout(() => onFinished(), 6000)  // finish
     ];
     return () => timers.forEach(clearTimeout);
   }, [onFinished]);
 
   return (
-    <div className="fixed inset-0 z-50">
-      {/* Fondo blanco por defecto */}
-      <div className="absolute inset-0 bg-white" />
+    <div
+      className={cn(
+        "fixed inset-0 flex flex-col items-center justify-center z-50 transition-opacity duration-700",
+        phase === 3 && "opacity-0",
+        phase < 2 ? "bg-[#0a192f]" : "bg-white"
+      )}
+    >
+      <div className="absolute inset-0 flex items-center justify-center">
+        {phase < 2 && <DrawingSpring show={phase === 1} />}
+      </div>
 
-      {/* Overlay azul que se desvanece */}
       <div
         className={cn(
-          "absolute inset-0 bg-[#0a192f] transition-opacity duration-1000",
-          phase >= 2 && "opacity-0"
+          "transition-opacity duration-700",
+          phase >= 2 ? "opacity-100" : "opacity-0"
         )}
-      />
-
-      {/* Contenido */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        {phase < 2 && <DrawingSpring show={phase === 1} />}
-        {phase >= 2 && <LogoAndText show={phase >= 2} />}
+      >
+        <LogoAndText show={phase >= 2} />
       </div>
     </div>
   );
