@@ -72,8 +72,8 @@ const DrawingSpring = ({ show }: { show: boolean }) => {
       )}
     >
       <svg
-        width={200}
-        height={300}
+        width={100}
+        height={200}
         viewBox={`0 0 200 300`}
         preserveAspectRatio="xMidYMid meet"
       >
